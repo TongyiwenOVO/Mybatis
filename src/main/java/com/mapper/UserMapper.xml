@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mapper.UserMapper">
+    <sql id="user_querry">
+        <if test="userCustom !=null">
+            <if test="userCustom.sex !=null and userCustom.sex !=''">
+                and  sex=#{userCustom.sex}
+            </if>
+            <if test="userCustom.username !=null and userCustom.username !=''">
+                and username like concat('%',#{userCustom.username},'%')
+            </if>
+        </if>
+    </sql>
+    <sql id="id_querry">
+        <if test="ids != null and ids.size()>0">
+            <foreach collection="ids" item="id" open="and (" close=")" separator="or">
+                id=#{id}
+            </foreach>
+        </if>
+    </sql>
+    <select id="selectAll" resultType="user">
+        select * from user;
+    </select>
+
+    <select id="findById" parameterType="java.lang.Integer" resultType="user">
+        select * from user where id=#{id}
+    </select>
+
+    <select id="findByName" parameterType="string" resultType="user">
+        select * from user where username like #{name}
+    </select>
+
+    <insert id="saveUser" parameterType="com.entity.User">
+        <!--配置插入操作后，获取插入数据的id  keyProperty对应实体类中的属性 keyColumn为数据库的字段名-->
+        <selectKey keyProperty="id" keyColumn="id" resultType="int" order="AFTER">
+            select last_insert_id();
+        </selectKey>
+        insert into user(username,address,sex,birthday)values(#{username},#{address},#{sex},#{birthday});
+    </insert>
+
+    <!--删除用户-->
+    <delete id="deleteUserById" parameterType="java.lang.Integer">
+        delete from user where id=#{id};
+    </delete>
+
+    <!--更新用户-->
+    <update id="updateUser" parameterType="com.entity.User">
+        update user set username=#{username},address=#{address},sex=#{sex},birthday=#{birthday} where id=#{id};
+    </update>
+
+
+    <select id="selectByQuerryVo" resultType="userCustom">
+        select * from user
+        <where>
+            <include refid="user_querry"></include>
+            <include refid="id_querry"></include>
+        </where>
+    </select>
+</mapper>

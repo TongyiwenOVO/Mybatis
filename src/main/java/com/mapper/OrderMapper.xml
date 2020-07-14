@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mapper.OrderMapper">
+    <resultMap id="ResultMapWithUserAndOrderDetail" type="order">
+        <id property="id" column="oid"></id>
+        <result property="userId" column="user_id"></result>
+        <result property="number" column="number"></result>
+        <result property="createtime" column="createtime"></result>
+        <result property="note" column="note"></result>
+        <association property="user" javaType="user">
+            <id property="id" column="uid"></id>
+            <result property="username" column="username"></result>
+            <result property="birthday" column="birthday"></result>
+            <result property="sex" column="sex"></result>
+            <result property="address" column="address"></result>
+        </association>
+        <collection property="orderDetails" ofType="orderDetail">
+            <id property="id" column="odid"></id>
+            <result property="ordersId" column="orders_id"></result>
+            <result property="itemsId" column="items_id"></result>
+            <result property="itemsNum" column="items_num"></result>
+        </collection>
+    </resultMap>
+    <sql id="select_List">
+        o.id as oid ,o.user_id,o.number,o.createtime,o.note,u.id as uid,u.username,u.birthday,u.sex,u.address,od.id as odid,od.orders_id,od.items_id,od.items_num
+    </sql>
+    <select id="selectAll" resultMap="ResultMapWithUserAndOrderDetail">
+        select
+        <include refid="select_List"></include>
+        from orders o left join user u on o.user_id=u.id left join orderdetail od on o.id=od.orders_id
+    </select>
+</mapper>
